@@ -68,24 +68,14 @@ python/                            pure-Python copy + demo
 docs/                              figures
 ```
 
-## In RViz (2023)
+## In RViz
 
 | Angle filter (red) | Distance filter (magenta) |
 |---|---|
 | <img src="docs/rviz_1_angle_filter.png"/> | <img src="docs/rviz_2_distance_filter.png"/> |
 
-## Changes from the original 2023 version
 
-- **Perpendicular distance is now in metres.** It used to divide by the squared segment length, so `epsilon` had no consistent unit.
-- **The goal is never dropped.** The goal check used `&&` instead of `||`, so a goal sharing an x or y coordinate with the previous waypoint was lost.
-- **The service callback returns a result.** It never returned `true`, which is undefined behaviour in C++.
-- **No more NaN angles or crashes:**
-  - angles use `atan2(|cross|, dot)`, so there is no `acos` domain error and π is no longer approximated as 3.14
-  - repeated points are handled without dividing by zero
-  - an empty path is reported as an error instead of crashing
-- **Valid output orientations.** Poses used to have an all-zero quaternion.
-- **Configurable.** The planner service name is a parameter instead of being hard-coded.
-- **New:** the cumulative angle mode, the precise corner location, a ROS-free core library, unit tests and a Python demo.
+
 
 ## License
 
