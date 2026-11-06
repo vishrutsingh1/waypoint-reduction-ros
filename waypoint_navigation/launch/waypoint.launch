@@ -1,0 +1,15 @@
+<launch>
+  <arg name="planner_service"     default="move_base/make_plan"/>
+  <arg name="angle_threshold_deg" default="5.0"/>   <!-- keep points where the path turns at least this much -->
+  <arg name="min_distance"        default="1.0"/>   <!-- minimum spacing between waypoints [m] -->
+  <arg name="epsilon"             default="0.3"/>   <!-- deviation that triggers corner recovery [m] -->
+  <arg name="angle_mode"          default="cumulative"/>  <!-- cumulative | local -->
+
+  <node pkg="waypoint_navigation" type="waypoint_server" name="waypoint_server" output="screen">
+    <param name="planner_service"     value="$(arg planner_service)"/>
+    <param name="angle_threshold_deg" value="$(arg angle_threshold_deg)"/>
+    <param name="min_distance"        value="$(arg min_distance)"/>
+    <param name="epsilon"             value="$(arg epsilon)"/>
+    <param name="angle_mode"          value="$(arg angle_mode)"/>
+  </node>
+</launch>

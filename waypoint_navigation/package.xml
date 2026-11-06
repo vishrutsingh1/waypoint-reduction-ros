@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>waypoint_navigation</name>
+  <version>1.0.0</version>
+  <description>Reduces a dense planner path to a few shape-preserving waypoints (angle filter + distance filter + Douglas-Peucker-style corner recovery).</description>
+  <maintainer email="vishrutsingh1@gmail.com">Vishrut Singh</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>roscpp</depend>
+  <depend>nav_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>visualization_msgs</depend>
+  <depend>tf2</depend>
+  <depend>tf2_geometry_msgs</depend>
+  <test_depend>rosunit</test_depend>
+</package>
