@@ -2,6 +2,8 @@
 
 Global planners such as `move_base`/navfn return paths with hundreds of poses spaced a few centimetres apart. That is too many to send to a drone or a waypoint follower. This package reduces such a path to a **small set of waypoints that keeps the shape of the path**: corners stay sharp, straight sections collapse to their endpoints, and small detours are not lost.
 
+**Method:** jitter-robust angle filter → minimum-spacing filter → **Douglas–Peucker-style corner recovery**.
+
 <p align="center"><img src="docs/rviz_3_final.png" width="75%"/><br/><sub>RViz: dense planner path (green) reduced to a handful of waypoints (blue)</sub></p>
 
 ## Algorithm
@@ -14,7 +16,7 @@ dense path ─► 1. angle filter ─► 2. distance filter ─► 3. corner rec
    - In the default `cumulative` mode, the turn is measured between the direction since the last kept point and the direction over the next `lookahead` metres. This picks up gentle arcs and ignores the millimetre-level jitter of planner paths.
    - When a turn is detected, the point kept is the one furthest from the local chord, which is the actual corner, not the first point that noticed the turn.
 2. **Distance filter.** This enforces a minimum spacing `min_distance` between consecutive waypoints, and remembers the points it rejects.
-3. **Corner recovery.** Step 2 can throw away a real corner. So before accepting each new waypoint, the algorithm looks at the points rejected since the last one. If any of them is at least `epsilon` metres from the straight line between the two waypoints, the furthest one is put back. This is the key idea of Douglas–Peucker, applied only where the distance filter removed something.
+3. **Corner recovery (Douglas–Peucker).** Step 2 can throw away a real corner. So before accepting each new waypoint, the algorithm looks at the points rejected since the last one. If any of them is at least `epsilon` metres from the straight line between the two waypoints, the furthest one is put back. This is the key idea of the **[Douglas–Peucker algorithm](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm)**, applied only where the distance filter removed something.
 
 The start and the goal are always kept. Every waypoint is oriented to face the next one, and the last waypoint keeps the requested goal orientation.
 
@@ -68,14 +70,24 @@ python/                            pure-Python copy + demo
 docs/                              figures
 ```
 
-## In RViz
+## In RViz (2023)
 
 | Angle filter (red) | Distance filter (magenta) |
 |---|---|
 | <img src="docs/rviz_1_angle_filter.png"/> | <img src="docs/rviz_2_distance_filter.png"/> |
 
+## Changes from the original 2023 version
 
-
+- **Perpendicular distance is now in metres.** It used to divide by the squared segment length, so `epsilon` had no consistent unit.
+- **The goal is never dropped.** The goal check used `&&` instead of `||`, so a goal sharing an x or y coordinate with the previous waypoint was lost.
+- **The service callback returns a result.** It never returned `true`, which is undefined behaviour in C++.
+- **No more NaN angles or crashes:**
+  - angles use `atan2(|cross|, dot)`, so there is no `acos` domain error and π is no longer approximated as 3.14
+  - repeated points are handled without dividing by zero
+  - an empty path is reported as an error instead of crashing
+- **Valid output orientations.** Poses used to have an all-zero quaternion.
+- **Configurable.** The planner service name is a parameter instead of being hard-coded.
+- **New:** the cumulative angle mode, the precise corner location, a ROS-free core library, unit tests and a Python demo.
 
 ## License
 
